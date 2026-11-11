@@ -1,0 +1,29 @@
+{
+  "global": {
+    "ctrl-space": "mod.open:omarchy-prefix",
+    "alt-enter": "pane.split:down",
+    "alt-shift-enter": "pane.split:right",
+    "alt-escape": "pane.close",
+    "ctrl-alt-left": "pane.go:left",
+    "ctrl-alt-right": "pane.go:right",
+    "ctrl-alt-up": "pane.go:up",
+    "ctrl-alt-down": "pane.go:down",
+    "alt-1": "tab.select:1",
+    "alt-2": "tab.select:2",
+    "alt-3": "tab.select:3",
+    "alt-4": "tab.select:4",
+    "alt-5": "tab.select:5",
+    "alt-6": "tab.select:6",
+    "alt-7": "tab.select:7",
+    "alt-8": "tab.select:8",
+    "alt-9": "tab.select:9",
+    "alt-left": "tab.prev",
+    "alt-right": "tab.next",
+    "alt-shift-left": "mod.open:omarchy-tab-left",
+    "alt-shift-right": "mod.open:omarchy-tab-right",
+    "alt-up": "space.prev",
+    "alt-down": "space.next",
+    "alt-shift-up": "agent.prev",
+    "alt-shift-down": "agent.next"
+  }
+}
