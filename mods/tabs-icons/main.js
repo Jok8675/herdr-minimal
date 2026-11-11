@@ -30,12 +30,10 @@ function find(node, id) {
 // rename keeps it: run `herdr-app ls` and copy the tab's "id" (it starts with "tb"). Leave the map empty and every tab
 // shows its program's icon. The tile is the tab's full height (TILE = 29 px at zoom 1) with the tab's own 7 px corners,
 // tucked into its left end (a tab wearing one has no border and no left padding), so draw your PNG square with rounded
-// corners already in it, at 29 x your display scale (46 px at 1.6) for a crisp edge. The three PNGs in this folder are
-// the author's (Jokzy, Jolf and an Intel NUC), left in as examples: uncomment a line and put your tab's id in.
+// corners already in it, at 29 x your display scale (46 px at 1.6) for a crisp edge. Put it in this folder and add a
+// line like the one below with your tab's id.
 const TAB_ICONS = {
-  // "tb0123456789abcdef0123456789abcdef": "mods/tabs-icons/jokzy.png",
-  // "tbfedcba9876543210fedcba9876543210": "mods/tabs-icons/jolf.png",
-  // "tb00112233445566778899aabbccddeeff": "mods/tabs-icons/nuc.png",
+  // "tb0123456789abcdef0123456789abcdef": "mods/tabs-icons/my-project.png",
 };
 const TILE = 29;
 const ICON = 19; // program icons in the other tabs (herdr ships 14; Jok: "make the icons larger")
@@ -43,6 +41,11 @@ function tabIcon(id) {
   const e = TAB_ICONS[id];
   return e ? image(e).size(TILE).flex_none() : null;
 }
+
+// THE SEGMENTED LOOK: every tab sits in one rounded track; the shown one is a raised segment with a hairline edge and
+// a soft shadow, the rest are bare until hovered. Corners stay concentric with the 7 px tiles: tab 7, track 7 + its
+// 3 px padding = 10. The washes are white on a dark theme and black on a light one.
+const wash = (alpha) => (settings()?.dark === false ? "#000000" : "#ffffff") + alpha;
 
 export default class Tabs extends View {
   init() {
@@ -204,11 +207,13 @@ export default class Tabs extends View {
     const item = (c, i) => {
       const program = panes().find(p => p.tab === c.id && p.program?.agent)?.program ?? panes().find(p => p.tab === c.id)?.program;
       const name = /^tb\d+$/.test(c.name) ? program?.name ?? "Terminal" : c.name;
+      // A segment of the track (see THE SEGMENTED LOOK).
       return h_flex().id(`tab-${c.id}`).h(29).px(10).gap(7).rounded(7).items_center().flex_none().text_size(12.8)
+        .border(1).border_color(c.active ? wash("12") : "#00000000").bg(c.active ? t.raised : "#00000000")
+        .text_color(c.active ? t.foreground : t.muted)
+        .when(Boolean(c.active), el => el.shadow_sm()).when(!c.active, el => el.hover(s => s.bg(wash("0a"))))
         // A rename or status dot on this or an earlier tab can push the active one out.
         .when(i <= active, el => el.on_size_change((_size, cx) => { this.scroll.scroll_to_item(active); cx.notify(); }))
-        .border(TAB_ICONS[c.id] ? 0 : 1).border_color(c.active ? t.border : t.chrome).bg(c.active ? t.raised : t.chrome).text_color(c.active ? t.foreground : t.muted)
-        .hover(s => s.bg(t.hover))
         .on_mouse_down("left", (e, cx) => { cx.stop_propagation(); this.pressed = i; if (e.click_count === 2) run("tab.rename", { id: c.id }); })
         .on_mouse_up("left", () => {
           const from = this.pressed; this.pressed = null;
@@ -244,9 +249,14 @@ export default class Tabs extends View {
     return h_flex().size_full().min_w(0).px(10).pl(lightsPadding).gap(3).items_center().bg(t.chrome).border_b(1).border_color(t.border)
       .on_mouse_up("left", () => { this.pressed = null; })
       .on_scroll_wheel(e => { if (Math.abs(e.delta.y) >= 1) run(e.delta.y > 0 ? "tab.prev" : "tab.next"); })
-      .child(h_flex().id("tab-scroll").flex_1().min_w(0).h_full().items_center().gap(3).overflow_x_scrollbar().track_scroll(this.scroll)
-        .on_size_change((_size, cx) => { if (active >= 0) { this.scroll.scroll_to_item(active); cx.notify(); } })
-        .children(shown.map(item)))
+      // The track (see THE SEGMENTED LOOK) is the scroller itself: it hugs the tabs, scrolls only once they outgrow the
+      // bar, and scroll_to_item still reaches each tab, its direct children. overflow_x_scroll, not _scrollbar: the
+      // scrollbar version fills its parent, stretching the track bar-wide.
+      .child(h_flex().flex_1().min_w(0).h_full().items_center()
+        .child(h_flex().id("tab-scroll").flex_initial().min_w(0).gap(2).p(3).rounded(10).bg(wash("08")).border(1).border_color(wash("0a"))
+          .overflow_x_scroll().track_scroll(this.scroll)
+          .on_size_change((_size, cx) => { if (active >= 0) { this.scroll.scroll_to_item(active); cx.notify(); } })
+          .children(shown.map(item))))
       .child(button("tab-new", "+", () => openOverlay({ mod: "new-menu", kind: "popup", width: 250, height: 512 })))
       .when(enabled.includes("files"), el => el.child(panelButton("files", "Files", "mods/files/file.svg")))
       .when(enabled.includes("changes"), el => el.child(panelButton("changes", "Changes", "mods/changes/changes.svg")))

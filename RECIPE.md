@@ -9,8 +9,8 @@ A quiet, near-black Herdr window. A slim tab bar runs across the top: each tab i
 Left to right, top to bottom:
 
 - **Tab bar** (top, 42 px, theme `chrome` #0d0d0d, 1 px `border` line under it, drags the window):
-  - Tabs as pills, 29 px tall, 7 px corners, 12.8 px text. The shown tab is `raised` #282828 with a 1 px `border` #2f2f2f. The others are flat `chrome` in `muted` #989898 text.
-  - Each pill shows its program's icon at 19 px: Claude Code, a shell, and so on. A tab you list in `TAB_ICONS` (in `mods/tabs-icons/main.js`) wears your own square PNG instead, 29 px, as the pill's whole left end. Three example tiles ship (Jokzy, Jolf, an Intel NUC); the map is empty until you add your tab ids.
+  - Tabs as segments of one rounded track (corners 10, 3 px padding, a white wash at 3% with a 4% hairline edge; black washes on a light theme). The track hugs the tabs and scrolls once they outgrow the bar. Each tab is 29 px tall, 7 px corners, 12.8 px text. The shown tab is a raised segment: `raised` #282828, a 7% hairline edge and a small soft shadow. The others are bare, `muted` #989898 text, with a 4% wash on hover.
+  - Each pill shows its program's icon at 19 px: Claude Code, a shell, and so on. A tab you list in `TAB_ICONS` (in `mods/tabs-icons/main.js`) wears your own square PNG instead, 29 px, as the tab's whole left end. The map ships empty: add your own tab ids.
   - A working agent's tab shows a 12 px ring spinner in `working` #b91c1c. A tab whose agent needs you, or finished, shows a 6 px dot (`blocked` #D35F5F, `done` #e68e0d). No close ×.
   - Right end, in order:
     - `+`: the shipped new-menu.
@@ -99,11 +99,11 @@ The theme (`themes/herdr-minimal.json`) is Omarchy's Matte Black: #121212 backgr
     - `sidebar-lists` column with the shipped `spaces` and `agents`, each weight 1, min 90.
     - `sidebar-footer` block, 69 px, mod `workspace-chrome-jok`, props `{ "footer": true }`.
 - **`mods/tabs-icons`:** a clone of Herdr's `tabs`. It holds:
-  - The pills and drag-to-move, plus the per-space Files/Changes panel memory (localStorage), from the clone.
+  - The track and its segments, drag-to-move, plus the per-space Files/Changes panel memory (localStorage), from the clone.
   - `TAB_ICONS` (tab id → PNG), published as shared `"tab-icons"` for the sessions popup.
   - The volume control: gpui-base `SliderState` / `Slider` / `SliderTrack` / `SliderIndicator` / `SliderThumb`.
   - It reads and writes `settings.json` with `readTextFile` / `writeTextFile` (with the text it read as `expected`, retried on a stale write). It runs `ffmpeg`, `mkdir` and `find` through `exec`, and calls `playSound`. It keeps `{level, last, src}` in shared `"alert-volume"`.
-  - Assets: `volume-1/2/x.svg`, the Windows window-button SVGs, and the three example tiles.
+  - Assets: `volume-1/2/x.svg` and the Windows window-button SVGs.
 - **`mods/workspace-chrome-jok`:** a clone of Herdr's `workspace-chrome`. It draws the sidebar header and footer. Its close button runs `layout.hide sidebar`, with no rail; the width goes in shared `"sidebar.width"`. Footer: `app.settings`, `mod.open machine-add`. It uses the clone's own SVGs and Herdr's `frame/welcome/herdr.png`.
 - **`mods/omarchy-prefix`:** a popup (`at: "top"`, offset 40, 680 wide, height ≤ 120). It takes focus in `init` (again 30 ms later) and maps the next key through a `KEYS` table to `run(...)`.
 - **`mods/sessions`:** a popup (`at: "top"`, offset 40, 680 wide, height ≤ 600). It reads `spaces()`, `panes()`, `home()`, shared `"tab-icons"` and `"space.colors"`. It goes to a tab with `space.select` + `tab.select` and scrolls with `ScrollHandle.scroll_to_item`.
@@ -118,6 +118,8 @@ The theme (`themes/herdr-minimal.json`) is Omarchy's Matte Black: #121212 backgr
 - **On this theme `input` is the same colour as `chrome`.** A slider groove in `input` vanishes on the bar, and the slider looks full when it isn't. Use `border`.
 - **The slider needs all four parts** (no `SliderIndicator` and it can't be moved). A 12 px thumb sits centred on a 4 px groove with `.ml(-6).mt(-4)`.
 - **Stop the wheel's propagation over the slider,** or the bar's own wheel handler switches tabs.
+- **The track scrolls with `overflow_x_scroll()`, not `overflow_x_scrollbar()`.** The scrollbar version fills its parent, so the track stretched across the whole bar instead of hugging the tabs. The track is the scroller itself (`flex_initial`, `min_w(0)`), so `ScrollHandle.scroll_to_item` still reaches each tab, its direct children.
+- **Keep corners concentric:** a 7 px tile 3 px inside the track means the track's corners are 10.
 - **Volume:**
   - It needs `ffmpeg` (with libmp3lame) on PATH.
   - Herdr's built-in sounds live inside the app and can't be scaled: pick a file in Settings > Alerts first. The slider says so in a toast.
