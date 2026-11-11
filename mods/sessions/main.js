@@ -6,7 +6,10 @@
 // picture in the tab bar (tabs-icons' TAB_ICONS, shared as "tab-icons") wears it here too.
 
 import { View, div, svg, image } from "gpui-kit";
-import { v_flex, h_flex, ScrollHandle } from "gpui-base";
+import { v_flex, h_flex } from "gpui-base";
+import * as gpuiBase from "gpui-base";
+// Herdr 0.1.15 calls it ScrollHandle; 0.1.14 only has VirtualListScrollHandle.
+const ScrollHandle = gpuiBase.ScrollHandle ?? gpuiBase.VirtualListScrollHandle;
 import { spaces, panes, run, props, closeOverlay, theme, shared, home } from "herdr";
 
 // The spaces' colours, as the shipped picker draws them (shared "space.colors": a theme colour name or #rrggbb).

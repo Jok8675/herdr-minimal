@@ -1,5 +1,8 @@
 import { View, div, svg, image } from "gpui-kit";
-import { h_flex, ScrollHandle, Slider, SliderState, SliderTrack, SliderIndicator, SliderThumb } from "gpui-base";
+import { h_flex, Slider, SliderState, SliderTrack, SliderIndicator, SliderThumb } from "gpui-base";
+import * as gpuiBase from "gpui-base";
+// Herdr 0.1.15 calls it ScrollHandle; 0.1.14 only has VirtualListScrollHandle.
+const ScrollHandle = gpuiBase.ScrollHandle ?? gpuiBase.VirtualListScrollHandle;
 import { spaces, panes, run, openOverlay, theme, window, shared, setShared, layout, settings,
   appHome, readTextFile, writeTextFile, exec, playSound, notify } from "herdr";
 
